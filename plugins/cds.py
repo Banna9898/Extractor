@@ -54,25 +54,28 @@ async def account_login(bot: Client, message: Message):
         await message.reply_text("Invalid user ID. Please try again.")
     bdata = json.loads(url.text)
     first_item = bdata["items"][0]  # Access the first item in the list
-    keydata = first_item["batch"]
-    if not keydata:  # Check if there are no batches available
-        await editable.edit("You don't have any batches available.")
+    keydata = first_item.get("batch", {})  # Use .get() to handle missing key gracefully
+
+    # Ensure keydata is a dictionary before proceeding
+    if not isinstance(keydata, dict):
+        await editable.edit("Batch data is not available.")
         return
+
     cool = ""
+    FFF = "**BATCH-ID  -  BATCH NAME**"
     for data in keydata.values():  # Iterate over the values of keydata
         if isinstance(data, dict):  # Check if data is a dictionary
             batch_id = data.get("batch_id")
             batch_name = data.get("name")
             batch_fee = data.get("fee")
-            FFF = "**BATCH-ID  -  BATCH NAME**"
             aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
             if len(f'{cool}{aa}') > 4096:
                 cool = ""
             cool += aa  
         else:
             print("Unexpected data type:", type(data))
+
     # Access batch details
-    
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await message.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
