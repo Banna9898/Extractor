@@ -20,7 +20,7 @@ import sys
 import re
 from pyrogram import Client as bot
 import time
-#from typing import List, Dict
+from typing import List, Dict
 from typing import Any, Dict
 
 # Your import statements here
@@ -57,33 +57,45 @@ async def account_login(bot: Client, message: Message):
         await message.reply_text("Invalid user ID. Please try again.")
     bdata = json.loads(url.text)
     first_item = bdata["items"][0]  # Access the first item in the list
-    keydata = first_item.get("batch", {})  # Use .get() to handle missing key gracefully
+    batch_data = bdata["items"][0]["batch"]
+    # Extract batch details
+    batch_id = batch_data.get("batch_id")
+    batch_name = batch_data.get("name")
+    batch_fee = batch_data.get("fee")
     print("keydata:", keydata)
+    
+    # Check if all required fields are present
+    if batch_id and batch_name and batch_fee:
+        print("Batch ID:", batch_id)
+        print("Batch Name:", batch_name)
+        print("Batch Fee:", batch_fee)
+    else:
+        print("Missing required fields in batch data.")
     # Ensure keydata is a dictionary before proceeding
-    if not isinstance(keydata, dict):
-        await editable.edit("Batch data is not available.")
-        return
+    # if not isinstance(keydata, dict):
+    #     await editable.edit("Batch data is not available.")
+    #     return
 
-    cool = ""
-    FFF = "**BATCH-ID  -  BATCH NAME**"
-    for data_key, data_value in keydata.items():  # Iterate over the key-value pairs of keydata
-        if isinstance(data_value, dict):  # Check if data_value is a dictionary
-            batch_id = data_value.get("batch_id")
-            batch_name = data_value.get("name")
-            batch_fee = data_value.get("fee")
-            if batch_id and batch_name and isinstance(batch_fee, (int, float)):  # Ensure all required fields are present
-                aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
-                if len(f'{cool}{aa}') > 4096:
-                    cool = ""
-                cool += aa
-            else:
-                print("Missing required fields in batch data or incorrect data types.")
-        else:
-            print(f"Unexpected data type for key '{data_key}': {type(data_value)}")
+    # cool = ""
+    # FFF = "**BATCH-ID  -  BATCH NAME**"
+    # for data_key, data_value in keydata.items():  # Iterate over the key-value pairs of keydata
+    #     if isinstance(data_value, dict):  # Check if data_value is a dictionary
+    #         batch_id = data_value.get("batch_id")
+    #         batch_name = data_value.get("name")
+    #         batch_fee = data_value.get("fee")
+    #         if batch_id and batch_name and isinstance(batch_fee, (int, float)):  # Ensure all required fields are present
+    #             aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
+    #             if len(f'{cool}{aa}') > 4096:
+    #                 cool = ""
+    #             cool += aa
+    #         else:
+    #             print("Missing required fields in batch data or incorrect data types.")
+    #     else:
+    #         print(f"Unexpected data type for key '{data_key}': {type(data_value)}")
 
 
     # Access batch details
-    await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
+    #await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
 
     editable1 = await message.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
