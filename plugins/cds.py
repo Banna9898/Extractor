@@ -105,10 +105,6 @@ async def account_login(bot: Client, message: Message):
                             counter += 1
             await editable2.edit("Scraping completed successfully!")
             await editable2.delete()
-        else:
-            await message.reply_text("Failed to fetch batch topics. Please try again.")
-    else:
-        await message.reply_text("Invalid Batch ID.")
 
         # Sending the JSON document
         try:
@@ -127,7 +123,10 @@ async def account_login(bot: Client, message: Message):
             )
         except Exception as e:
             print("Error sending text document:", e)
-
+        else:
+            await message.reply_text("Failed to fetch batch topics. Please try again.")
+    else:
+        await message.reply_text("Invalid Batch ID.")
 
 
 
