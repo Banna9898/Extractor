@@ -96,7 +96,7 @@ async def account_login(bot: Client, m: Message):
         cdata['lessons'].reverse()  # Reverse the data if needed
         with open(f"{bname}.json", "w") as json_file:
             json.dump(cdata, json_file)
-
+        editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
         # Initialize a counter for the progress messages
         counter = 1  
 
