@@ -95,7 +95,7 @@ async def account_login(bot: Client, message: Message):
                 json.dump(cdata, json_file)
     
             editable2 = await message.reply_text("📥**Please wait patiently.** 🧲    `Scraping Url...`")
-            counter = 1  # Initialize a counter
+            counter = 50  # Initialize a counter
     
             with open(f"{batch_name}.txt", "w") as f:
                 topics = cdata.get('topics', [])
