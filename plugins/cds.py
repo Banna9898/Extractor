@@ -56,6 +56,7 @@ async def account_login(bot: Client, message: Message):
     bdata = json.loads(url.text)
     first_item = bdata["items"][0]  # Access the first item in the list
     keydata = first_item["batch"]
+    print(keydata)
     if not keydata:  # Check if there are no batches available
         await editable.edit("You don't have any batches available.")
         return
