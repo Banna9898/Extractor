@@ -36,7 +36,6 @@ async def account_login(bot: Client, message: Message):
         'userid': token,
         'sec-ch-ua-mobile':'?0',
         'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'token':'0667b862-e8ee-4fe5-b4fe-9dcc3ed001cd',
         'sec-ch-ua-platform':'"Windows"',
         'origin':'https://www.cdsjourney.com',
         'sec-fetch-site':'same-site',
@@ -56,21 +55,24 @@ async def account_login(bot: Client, message: Message):
     bdata = json.loads(url.text)
     first_item = bdata["items"][0]  # Access the first item in the list
     keydata = first_item["batch"]
-    print(keydata)
     if not keydata:  # Check if there are no batches available
         await editable.edit("You don't have any batches available.")
         return
+
+    for data in keydata.values():  # Iterate over the values of keydata
+        if isinstance(data, dict):  # Check if data is a dictionary
+            batch_id = data.get("batch_id")
+            batch_name = data.get("name")
+            batch_fee = data.get("fee")
+            FFF = "**BATCH-ID  -  BATCH NAME**"
+            aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
+            if len(f'{cool}{aa}') > 4096:
+                cool = ""
+            cool += aa  
+        else:
+            print("Unexpected data type:", type(data))
     # Access batch details
     cool = ""
-    for data in keydata.values():  # Iterate over the values of keydata
-        batch_id = data["batch_id"]
-        batch_name = data["name"]
-        batch_fee = data["fee"]
-        FFF = "**BATCH-ID  -  BATCH NAME**"
-        aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
-        if len(f'{cool}{aa}') > 4096:
-            cool = ""
-        cool += aa  
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await m.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
