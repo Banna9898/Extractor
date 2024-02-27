@@ -93,57 +93,55 @@ async def account_login(bot: Client, m: Message):
         bname = next((item["title"] for item in bdata if item.get("slug") == slugdata), None)
         url2 = s.get(f'https://admin2.khanglobalstudies.com/api/user/courses/{slugdata}/lessons?medium=0', headers=headers1)
         cdata = json.loads(url2.text)
-        cdata.reverse()
+        cdata['lessons'].reverse()  # Reverse the data if needed
         with open(f"{bname}.json", "w") as json_file:
             json.dump(cdata, json_file)
-        editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
-        
 
-        counter = 1  # Initialize a counter        
-        with open(f"{bname}.txt", "w") as f:
-            # Scraping videos
-            for lesson in cdata['lessons']:
-                lesson_name = lesson['name']
-                for video in lesson['videos']:
-                    video_name = video['name']
-                    video_url = video['video_url']
-                    f.write(f"{video_name}: {video_url}\n")
-                    # Update progress message for videos with a unique identifier
-                    await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
-                    counter += 1  # Increment the counter for the next message
+        # Initialize a counter for the progress messages
+        counter = 1  
 
-            # Scraping notes
-            for note in cdata['notes']:
-                note_name = note['name']
-                note_url = note['video_url']
-                f.write(f"{note_name}: {note_url}\n")
-                # Update progress message for notes
-                #await editable2.edit(f"🧲**Scraping notes Url**: `{note_name}`")
+        # Initialize the caption with headers
+        caption = (
+            f"✅ **JSON FILE** ✅\n"
+            f"📍 **APP Name**: KHAN Global Studies\n"
+            f"🔰 **Batch Name**: `{bname}`\n"
+            "|\n"  # Vertical line separator
+            "Field | Value\n"
+            "--- | ---\n"
+        )
+
+        # Scraping videos
+        for lesson in cdata['lessons']:
+            lesson_name = lesson['name']
+            for video in lesson['videos']:
+                video_name = video['name']
+                video_url = video['video_url']
+                caption += f"{lesson_name} | {video_name}: {video_url}\n"
+                # Update progress message for videos with a unique identifier
+                await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
+                counter += 1  # Increment the counter for the next message
+
+        # Scraping notes
+        for note in cdata['notes']:
+            note_name = note['name']
+            note_url = note['video_url']
+            caption += f"Notes | {note_name}: {note_url}\n"
+            # Update progress message for notes
+            #await editable2.edit(f"🧲**Scraping notes Url**: `{note_name}`")
+
         # Final progress message
         await editable2.edit("Scraping completed successfully!")
         await editable2.delete()
-        # Sending both files as documents
-        # Sending the HTML document
-        html_filename = f"{bname}.html"
-        print("HTML Filename:", html_filename)
 
-        try:
-            await bot.send_document(
-                chat_id=m.chat.id,
-                document=html_filename,
-                caption=f"📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: {bname}",
-            )
-        except Exception as e:
-            print("Error sending HTML document:", e)
-
-        # Sending the JSON document
+        # Sending the JSON document with vertically aligned content
         try:
             await m.reply_document(
                 document=f"{bname}.json",
-                caption=f"✅** JSON FILE **✅\n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
+                caption=caption
             )
         except Exception as e:
             print("Error sending JSON document:", e)
+
 
         # Sending the text document
         try:
