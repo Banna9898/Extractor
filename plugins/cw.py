@@ -75,11 +75,12 @@ async def account_login(bot: Client, m: Message):
            #print(r)
            token = r['data']['token']
            print('Token :- '+token)
-           await editable.edit(f"**login Successful**\n\n**Token :** `{token}`")
+           await editable.edit(f"**Login Successful**")
+           await m.reply_text(f**Token :** `{token}`)
         else:
            token = raw_text
            print('Token :- '+token)
-           await editable.edit("**login Successful**")
+           await editable.edit("**Login Successful**")
     except Exception as e:
       await m.reply_text(e)
     headers = {
@@ -153,7 +154,7 @@ async def account_login(bot: Client, m: Message):
                         surl = json.loads(html2.text)
                         stoken = surl["data"]["token"]
                         link = video_url + "&bcov_auth=" + stoken
-                        await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
+                        #await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
                     except Exception as e:
                         print(str(e))
                 elif bcvid.startswith("63"):
@@ -166,7 +167,7 @@ async def account_login(bot: Client, m: Message):
                         surl1 = json.loads(html4.text)
                         stoken1 = surl1["data"]["token"]
                         link = video_url1 + "&bcov_auth=" + stoken1
-                        await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
+                        #await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
                     except Exception as e:
                         print(str(e))
                 else:
