@@ -95,20 +95,12 @@ async def account_login(bot: Client, m: Message):
         cdata = json.loads(url2.text)
         cdata['lessons'].reverse()  # Reverse the data if needed
         with open(f"{bname}.json", "w") as json_file:
-            json.dump(cdata, json_file)
+            # Write each key-value pair to the file with a newline character
+            for key, value in cdata.items():
+                json_file.write(f"{key}: {value}\n")
         editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
         # Initialize a counter for the progress messages
         counter = 1  
-
-        # Initialize the caption with headers
-        caption = (
-            f"✅ **JSON FILE** ✅\n"
-            f"📍 **APP Name**: KHAN Global Studies\n"
-            f"🔰 **Batch Name**: `{bname}`\n"
-            "|\n"  # Vertical line separator
-            "Field | Value\n"
-            "--- | ---\n"
-        )
 
         # Scraping videos
         for lesson in cdata['lessons']:
@@ -137,7 +129,7 @@ async def account_login(bot: Client, m: Message):
         try:
             await m.reply_document(
                 document=f"{bname}.json",
-                caption=caption
+                caption=f"✅** JSON FILE **✅\n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
             )
         except Exception as e:
             print("Error sending JSON document:", e)
