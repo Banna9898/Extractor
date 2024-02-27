@@ -20,10 +20,7 @@ import re
 import os
 
 
-@bot.on_message(filters.command("stop"))
-async def restart_handler(_, m):
-    await m.reply_text("🛑**STOPPED**🛑", True)
-    os.execl(sys.executable, sys.executable, *sys.argv)
+
 
 @bot.on_message(filters.command(["master"]))
 async def account_login(bot: Client, m: Message):
