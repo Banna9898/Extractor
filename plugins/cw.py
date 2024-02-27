@@ -26,8 +26,16 @@ import cloudscraper
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from base64 import b64encode, b64decode
+from pyrogram import Client as bot
+import time
+from typing import List, Dict
 
-@bot.on_message(filters.command("cw"))
+ACCOUNT_ID = "6206459123001"
+BCOV_POLICY = "BCpkADawqM1VmXspFMod94-pT7xDCvmBEYt8U7f0mRB6XnG5huPE7I9qjhDW0qpx3LRyTD9WX7W6JvUGtgKN-qf1pJoZO-QXBMIykDivtAOgkJOmN-kyv4m_F0thrJ45z95hqWON0nsKBwvd"
+bc_url = f"https://edge.api.brightcove.com/playback/v1/accounts/{ACCOUNT_ID}/videos"
+bc_hdr = {"BCOV-POLICY": BCOV_POLICY}
+
+@bot.on_message(filters.command("master"))
 async def account_login(bot: Client, m: Message):
     editable = await m.reply_text(
         "Send **ID & Password** in this manner otherwise bot will not respond.\n\nSend like this:-  **ID*Password**"
@@ -35,27 +43,23 @@ async def account_login(bot: Client, m: Message):
     input1: Message = await bot.listen(editable.chat.id)
     raw_text = input1.text
     await input1.delete(True)
-    url = "https://elearn.crwilladmin.com/api/v5/login-other"
-    data = {
-        "deviceType": "android",
-        "password": "",
-        "deviceIMEI": "08750aa91d7387ab",
-        "deviceModel": "Realme RMX2001",
-        "deviceVersion": "R(Android 11.0)",
-        "email": "",
-        "deviceToken": "fYdfgaUaQZmYP7vV4r2rjr:APA91bFPn3Z4m_YS8kYQSthrueUh-lyfxLghL9ka-MT0m_4TRtlUu7cy90L8H6VbtWorg95Car6aU9zjA-59bZypta9GNNuAdUxTnIiGFxMCr2G3P4Gf054Kdgwje44XWzS9ZGa4iPZh"
-    }
-    headers = {
-        "Host": "elearn.crwilladmin.com",
-        "token": "",
-        "usertype": "",
-        "appver": "84",
-        "apptype": "android",
-        "content-type": "application/json; charset=UTF-8",
-        "content-Length": "326",
-        "accept-encoding": "gzip",
-        "user-agent": "okhttp/5.0.0-alpha.2",
-        'Connection': 'Keep-Alive'
+
+    headersa = {
+    'Host': 'elearn.crwilladmin.com',
+    'accept': 'application/json',
+    'usertype': '2',
+    'origintype': 'web',
+    'user-agent': 'Mozilla/5.0 (Lund ; choot) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36',
+    #'token': token,
+    'content-type': 'application/x-www-form-urlencoded',
+    'origin': 'https://web.careerwill.com',
+    'x-requested-with': 'mark.via.gp',
+    'sec-fetch-site': 'cross-site',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-dest': 'empty',
+    'referer': 'https://web.careerwill.com/',
+    # 'accept-encoding': 'gzip, deflate',
+    'accept-language': 'en-US,en;q=0.9',
     }
 
     try:
@@ -67,7 +71,7 @@ async def account_login(bot: Client, m: Message):
            'password': ps,
            }
 
-           r = requests.post('https://elearn.crwilladmin.com/api/v5/login-other', headers=headers, data=data).json()
+           r = requests.post('https://elearn.crwilladmin.com/api/v3/login-other', headers=headersa, data=data).json()
            #print(r)
            token = r['data']['token']
            print('Token :- '+token)
@@ -84,7 +88,7 @@ async def account_login(bot: Client, m: Message):
     'usertype': '2',
     'origintype': 'web',
     'user-agent': 'Mozilla/5.0 (Lund ; choot) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36',
-    'token': '',
+    'token': token,
     'content-type': 'application/x-www-form-urlencoded',
     'origin': 'https://web.careerwill.com',
     'x-requested-with': 'mark.via.gp',
@@ -95,224 +99,110 @@ async def account_login(bot: Client, m: Message):
     # 'accept-encoding': 'gzip, deflate',
     'accept-language': 'en-US,en;q=0.9',
     } 
-    url1 = requests.get("https://elearn.crwilladmin.com/api/v5/my-batch", headers=headers)
-    b_data = url1.json()['data']['batchData'], 
-    cool=""
-    for data in b_data:
-        FFF="**BATCH-ID - BATCH NAME - INSTRUCTOR**"
-        aa =f" ```{data['id']}``` - **{data['batchName']}** By {data['instructorName']}\n\n"
-        #aa=f"**Batch Name -** {data['batchName']}\n**Batch ID -** ```{data['id']}```\n**By -** {data['instructorName']}\n\n"
-        if len(f'{cool}{aa}')>4096:
-            await m.reply_text(aa)
-            cool =""
-        cool+=aa
-    await editable.edit(f'**Login Token :** `{token}`\n**You have these batches :-**\n\n{FFF}\n\n{cool}')
+    
+    url1 = requests.get('https://elearn.crwilladmin.com/api/v3/my-batch', headers=headers)
+    keydata = json.loads(url1.text)
+    bdata = keydata["data"]["batchData"]
 
+    if not bdata:  # Check if there are no batches available
+        await editable.edit("You don't have any batches available.")
+        return
+
+    cool = ""
+    FFF = "**BATCH-ID  -  BATCH NAME**"
+    for data in bdata:
+        aa = f"`{data['id']}` - **{data['batchName']}**\n\n"
+        if len(f'{cool}{aa}') > 4096:
+            cool = ""
+        cool += aa
+
+    await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1= await m.reply_text("**Now send the Batch ID to Download**")
-    input2 = message = await bot.listen(editable.chat.id)
+
+    input2 = await bot.listen(editable1.chat.id)
     raw_text2 = input2.text
+    await input2.delete(True)
 
-# topic id url = https://elearn.crwilladmin.com/api/v1/comp/batch-topic/881?type=class&token=d76fce74c161a264cf66b972fd0bc820992fe576
-    url2 = requests.get("https://elearn.crwilladmin.com/api/v5/batch-topic/"+raw_text2+"?type=class", headers=headers)
-    topicid = url2.json()["data"]["batch_topic"]
-    bn =url2.json()["data"]["batch_detail"]["name"]
-#     await m.reply_text(f'Batch details of **{bn}** are :')
-    vj=""
-    for data in topicid:
-        tids = (data["id"])
-        idid=f"{tids}&"
-        if len(f"{vj}{idid}")>4096:
-            await m.reply_text(idid)
-            vj = ""
-        vj+=idid
-        
-    vl=""
-    for data in topicid:
-        tds = (data["id"])
-        tsn = (data["topicName"])
-        idsd=f"{tds}*{tsn}&"
-        if len(f"{vl}{idsd}")>4096:
-            await m.reply_text(idsd)
-            vl = ""
-        vl+=idsd
-    
-    vp = ""
-    for data in topicid:
-        tn = (data["topicName"])
-        tns=f"{tn}&"
-        if len(f"{vp}{tn}")>4096:
-            await m.reply_text(tns)
-            vp=""
-        vp+=tns
-        
-    cool1 = ""    
-    for data in topicid:
-        t_name=(data["topicName"])
+    editable2 = await m.reply_text("📥Please wait patiently. 🧲Scraping Url...")
+
+    url2 = requests.get(f"https://elearn.crwilladmin.com/api/v3/batch-topic/{raw_text2}?type=class", headers=headers)
+    keydata2 = json.loads(url2.text)
+    b_data = keydata2["data"]["batch_topic"]
+    filename = keydata2["data"]["batch_detail"]["name"]
+
+    all_urls = ""
+    for data in b_data:
+        t_name = (data["topicName"].replace(" ", ""))
         tid = (data["id"])
-        
-        urlx = f"https://elearn.crwilladmin.com/api/v5/batch-detail/{raw_text2}?topicId={tid}"
-        ffx = requests.get(urlx, headers=headers)
-        vcx =ffx.json()["data"]["class_list"]["batchDescription"]
-        vvx =ffx.json()["data"]["class_list"]["classes"]
+        url3 = requests.get("https://elearn.crwilladmin.com/api/v3/batch-detail/" + raw_text2 + "?redirectBy=mybatch&b_data=" + tid + "&token=" + token)
+        keydata3 = json.loads(url3.text)
+        vvx = keydata3["data"]["class_list"]["classes"]
         vvx.reverse()
-        zz= len(vvx)
-        BBB = f"{'**TOPIC-ID * TOPIC - VIDEOS**'}"
-        hh = f"`{tid}*{t_name}` - **({zz})**\n"
-        
-        #if len(f'{cool1}{hh}')>4096:
-        #    await m.reply_text(hh)
-        #    cool1=""
-        cool1+=hh
-    await m.reply_text(f'Batch details of **{bn}** are:\n\n{BBB}\n\n{cool1}\n\n**{vcx}**')
-#     await m.reply_text(f'**{vcx}**')
-#     await m.reply_text(f'```{vj}```')
-
-    editable3= await m.reply_text("**Now send the Resolution**")
-    input4 = message = await bot.listen(editable.chat.id)
-    raw_text4 = input4.text
-
-    editable4= await m.reply_text("Now send the **Thumb url** Eg : ```https://telegra.ph/file/d9e24878bd4aba05049a1.jpg```\n\nor Send **no**")
-    input6 = message = await bot.listen(editable.chat.id)
-    raw_text6 = input6.text
-
-
-    thumb = input6.text
-    if thumb.startswith("http://") or thumb.startswith("https://"):
-        getstatusoutput(f"wget '{thumb}' -O 'thumb.jpg'")
-        thumb = "thumb.jpg"
-    else:
-        thumb == "no"
-    
-    editable2= await m.reply_text(f"Now send the **Topic IDs** to Download\n\nSend like this **1&2&3&4** so on\nor copy paste or edit **below ids** according to you :\n\n**Enter this to download full batch :-**\n```{vl}```")
-    
-    input3 = message = await bot.listen(editable.chat.id)
-    raw_text3 = input3.text
-    try:
-        xv = raw_text3.split('&')
-        for y in range(0,len(xv)):
-            av =xv[y]
-            t = av.split('*')[0]
-            va = av.split('*')[1]
-            url3 = f"https://elearn.crwilladmin.com/api/v5/batch-detail/{raw_text2}?topicId={t}" 
-            ff = requests.get(url3, headers=headers)
-            #vc =ff.json()["data"]["class_list"]["batchDescription"]
-            mm = ff.json()["data"]["class_list"]["batchName"]
-            
-            vv =ff.json()["data"]["class_list"]["classes"]
-            vv.reverse()
-            #clan =f"**{vc}**\n\nNo of links found in topic-id {raw_text3} are **{len(vv)}**"
-            #await m.reply_text(clan)
-            count = 1
-            try:
-                for data in vv:
-                    vidid = (data["id"])
-                    lessonName = (data["lessonName"]).replace("/", "_").replace(":", "_").replace("|", "_")
-                    bcvid = (data["lessonUrl"])
-#                     lessonName = re.sub('\|', '_', cf)
-                    if bcvid.startswith("62"):
-                        try:
-                            video_response = requests.get(f"{bc_url}/{bcvid}", headers=bc_hdr)
-                            video = video_response.json()
-                            video_source = video["sources"][5]
-                            video_url = video_source["src"]
-                            #print(video_url)
-
-                            surl=requests.get("https://elearn.crwilladmin.com/api/v5/livestreamToken?base=web&type=brightcove&vid="+vidid, headers=headers)
-                            stoken = surl.json()["data"]["token"]
-                            #print(stoken)
-
-                            link = video_url+"&bcov_auth="+stoken
-                            #print(link)
-                        except Exception as e:
-                            print(str(e))
-                    elif bcvid.startswith("63"):  
-                        try:
-                            video_response = requests.get(f"{bc_url}/{bcvid}", headers=bc_hdr)
-                            video = video_response.json()
-                            #print(video)
-                            video_source = video["sources"][5]
-                            video_url = video_source["src"]
-                            #print(video_url)
-                            surl=requests.get("https://elearn.crwilladmin.com/api/v5/livestreamToken?base=web&type=brightcove&vid="+vidid, headers=headers)
-                            stoken = surl.json()["data"]["token"]
-                            #print(stoken)
-                            #link = f"{lessonName}:{video_url}&bcov_auth={stoken}\n"
-                            link = video_url+"&bcov_auth="+stoken
-                            #print(link)
-                            #pv += link
-                        except Exception as e:
-                            print(e)    
-                    else:
-                        link="https://www.youtube.com/embed/"+bcvid
-                    # await m.reply_text(link)
-
-                    #editable3= await m.reply_text("**Now send the Resolution**")
-                    #input4 = message = await bot.listen(editable.chat.id)
-                    #raw_text4 = input4.text
-
-                    cc = f"{str(count).zfill(3)}.{lessonName}.mp4\n\n**Topic :-** {va}\n**Batch :** {mm}"
-                    Show = f"**Downloading:-**\n**Title -** ```{lessonName}\n\nQuality - {raw_text4}```\n\n**Url :-** ```{link}```"
-                    prog = await m.reply_text(Show)
-
-                    if "youtu" in link:
-                        if raw_text4 in ["144", "240", "480"]:
-                            ytf = f'bestvideo[height<={raw_text4}][ext=mp4]+bestaudio[ext=m4a]'
-                        elif raw_text4 == "360":
-                            ytf = 18
-                        elif raw_text4 == "720":
-                            ytf = 22
-                        else:
-                            ytf = 18
-                    else:
-                        ytf=f"bestvideo[height<={raw_text4}]"
-                        
-                    if ytf == f'bestvideo[height<={raw_text4}][ext=mp4]+bestaudio[ext=m4a]':
-                        cmd = f'yt-dlp -o "{lessonName}.mp4" -f "{ytf}" "{link}"'
-                    else:
-                        cmd = f'yt-dlp -o "{lessonName}.mp4" -f "{ytf}+bestaudio" "{link}"'
-
-
-                    #cmd = f'yt-dlp -o "{lessonName}.mp4" -f "{ytf}+bestaudio" "{link}"'
+        try:
+            for data in vvx:
+                vidid = data["id"]
+                lessonName = data["lessonName"].replace("/", "_")
+                bcvid = data["lessonUrl"][0]["link"]
+                if bcvid.startswith("62"):
                     try:
-                        download_cmd = f"{cmd} -R 25 --fragment-retries 25 -N 60 --external-downloader aria2c --downloader-args 'aria2c: -x 16 -j 32'"
-                        os.system(download_cmd)
-                        
-
-                        filename = f"{lessonName}.mp4"
-#                         await prog.delete (True)
-#                         reply = await m.reply_text("Uploading Video")
-                        subprocess.run(f'ffmpeg -i "{filename}" -ss 00:00:19 -vframes 1 "{filename}.jpg"', shell=True)
-    
-                        #thumbnail = f"{filename}.jpg"
-                        await prog.delete (True)
-                        reply = await m.reply_text("Uploading Video")
-                        
-
-                        try:
-                            if thumb == "no":
-                                thumbnail = f"{filename}.jpg"
-                            else:
-                                thumbnail = thumb
-                        except Exception as e:
-                            await m.reply_text(str(e))
-
-
-
-                        dur = int(helper.duration(filename))
-#                         await prog.delete (True)
-                        start_time = time.time()
-                        await m.reply_video(f"{lessonName}.mp4",caption=cc, supports_streaming=True,height=720,width=1280,thumb=thumbnail,duration=dur, progress=progress_bar,progress_args=(reply,start_time))
-                        count+=1
-                        os.remove(f"{lessonName}.mp4")
-                        
-                        os.remove(f"{filename}.jpg")
-                        await reply.delete (True)
+                        html1 = requests.get(f"{bc_url}/{bcvid}", headers=bc_hdr)
+                        video = json.loads(html1)
+                        video_source = video["sources"][5]
+                        video_url = video_source["src"]
+                        html2 = requests.get("https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid=" + vidid + "&token=" + token)
+                        surl = json.loads(html2.text)
+                        stoken = surl["data"]["token"]
+                        link = video_url + "&bcov_auth=" + stoken
+                        await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
                     except Exception as e:
-                        await m.reply_text(f"**Video downloading failed ❌**\n{str(e)}")
-                        continue
+                        print(str(e))
+                elif bcvid.startswith("63"):
+                    try:
+                        html3 = requests.get(f"{bc_url}/{bcvid}", headers=bc_hdr)
+                        video1 = json.loads(html3.text)
+                        video_source1 = video1["sources"][5]
+                        video_url1 = video_source1["src"]
+                        html4 = requests.get("https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid=" + vidid + "&token=" + token)
+                        surl1 = json.loads(html4.text)
+                        stoken1 = surl1["data"]["token"]
+                        link = video_url1 + "&bcov_auth=" + stoken1
+                        await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
+                    except Exception as e:
+                        print(str(e))
+                else:
+                    link = "https://www.youtube.com/embed/" + bcvid
+                cc = f"{lessonName}::{link}"
+                all_urls += f"{cc}\n"
+        except Exception as e:
+            await editable1.reply_text(str(e))
+
+        try:
+            html5 = requests.get("https://elearn.crwilladmin.com/api/v3/batch-notes/" + raw_text2 + "?b_data=" + raw_text2 + "&token=" + token)
+            pdfD = json.loads(html5.text)
+            k = pdfD["data"]["notesDetails"]
+            bb = len(pdfD["data"]["notesDetails"])
+            ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
+            await editable1.reply_text(ss)
+            k.reverse()
+            count1 = 1
+            try:
+                for data in k:
+                    name = data["docTitle"]
+                    s = data["docUrl"]
+                    xi = data["publishedAt"]
+                    all_urls += f"{name}::{s}\n"
+                    await editable2.edit(f"🧲**Scraping notes Url**: `{name}`")
             except Exception as e:
                 await m.reply_text(str(e))
-            
-    except Exception as e:
-        await m.reply_text(str(e))
-    await m.reply_text("Done")
+        except Exception as e:
+            print(str(e))
+    await editable2.edit("Scraping completed successfully!")
+    await editable2.delete()
+    # Write all URLs into one document file
+    with open(f"{filename}.txt", 'w') as f:
+        f.write(all_urls)
+
+    await m.reply_document(
+        document=f"{filename}.txt",
+        caption=f"📍**APP Name**: Career Will\n🔰**Batch Name**: `{filename}`"
+    )
