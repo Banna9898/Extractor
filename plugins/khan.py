@@ -112,7 +112,7 @@ async def account_login(bot: Client, m: Message):
                     f.write(f"{video_name}: {video_url}\n")
                     # Update progress message for videos with a unique identifier
                     await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
-                    counter += 1  # Increment the counter for the next message
+                    counter *= 4  # Increment the counter for the next message
 
         # Scraping notes
             for note in cdata['notes']:
