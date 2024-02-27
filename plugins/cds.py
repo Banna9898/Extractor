@@ -104,8 +104,8 @@ async def account_login(bot: Client, message: Message):
                         counter += 1
             await editable2.edit("Scraping completed successfully!")
             await editable2.delete()
-        else:
-            await message.reply_text("Failed to fetch batch topics. Please try again.")
+    else:
+        await message.reply_text("Failed to fetch batch topics. Please try again.")
         # Sending the JSON document
         try:
             await message.reply_document(
