@@ -75,7 +75,7 @@ async def account_login(bot: Client, m: Message):
             token = r['data']['token']
             #print('Token :- '+token)
             await editable.edit(f"**Login Successful**")
-            await m.reply_text(f"**Token :** `{token}`")        
+            #await m.reply_text(f"**Token :** `{token}`")        
         else:
            token = raw_text
            #print('Token :- '+token)
@@ -115,7 +115,7 @@ async def account_login(bot: Client, m: Message):
         if len(f'{cool}{aa}') > 4096:
             cool = ""
         cool += aa
-
+    await m.reply_text(f"**Token :** `{token}`")
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1= await m.reply_text("**Now send the Batch ID to Download**")
 
@@ -181,8 +181,8 @@ async def account_login(bot: Client, m: Message):
             pdfD = json.loads(html5.text)
             k = pdfD["data"]["notesDetails"]
             bb = len(pdfD["data"]["notesDetails"])
-            ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
-            await editable1.reply_text(ss)
+            #ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
+            #await editable1.reply_text(ss)
             k.reverse()
             count1 = 1
             try:
