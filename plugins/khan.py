@@ -94,7 +94,7 @@ async def account_login(bot: Client, m: Message):
         bname = next((item["title"] for item in bdata if item.get("slug") == slugdata), None)
         url2 = s.get(f'https://admin2.khanglobalstudies.com/api/user/courses/{slugdata}/lessons?medium=0', headers=headers1)
         cdata = json.loads(url2.text)
-        print("Url Data:", cdata)
+        #print("Url Data:", cdata)
 
         # Read the contents of the template file
         with open("template.html", "r") as template_file:
@@ -107,7 +107,7 @@ async def account_login(bot: Client, m: Message):
         # Dumping JSON data to a file
         with open(f"{bname}.json", "w") as json_file:
             json.dump(cdata, json_file)
-        editable2 = await m.reply_text("📥Please wait keep patientce. 🧲Scraping Url...")
+        editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
         # Writing lesson and notes data to a text file
         with open(f"{bname}.txt", "w") as f:
             # Scraping videos
@@ -118,14 +118,14 @@ async def account_login(bot: Client, m: Message):
                     video_url = video['video_url']
                     f.write(f"{video_name}: {video_url}\n")
                     # Update progress message for videos
-                    await editable2.edit(f"🧲**Scraping videos Url**: `{video_name}`")
+                    await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}`")
             # Scraping notes
             for note in cdata['notes']:
                 note_name = note['name']
                 note_url = note['video_url']
                 f.write(f"{note_name}: {note_url}\n")
                 # Update progress message for notes
-                await editable2.edit(f"🧲**Scraping notes Url**: `{note_name}`")
+                #await editable2.edit(f"🧲**Scraping notes Url**: `{note_name}`")
         # Final progress message
         await editable2.edit("Scraping completed successfully!")
         await editable2.delete()
