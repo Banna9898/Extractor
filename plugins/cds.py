@@ -81,7 +81,6 @@ async def account_login(bot: Client, message: Message):
         url2 = requests.get(f'https://api.cdsjourney.com/batches/{batchid}/topics', headers=headers)
         cdata = json.loads(url2.text)
         # Dumping JSON data to a file
-        batch_name = first_item.get("name", "Unknown Batch")
         with open(f"{batch_name}.json", "w") as json_file:
             json.dump(cdata, json_file)
         editable2 = await message.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
