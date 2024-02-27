@@ -109,6 +109,8 @@ async def account_login(bot: Client, m: Message):
             json.dump(cdata, json_file)
         editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
         # Writing lesson and notes data to a text file
+        counter = 1  # Initialize a counter
+        
         with open(f"{bname}.txt", "w") as f:
             # Scraping videos
             for lesson in cdata['lessons']:
@@ -117,8 +119,10 @@ async def account_login(bot: Client, m: Message):
                     video_name = video['name']
                     video_url = video['video_url']
                     f.write(f"{video_name}: {video_url}\n")
-                    # Update progress message for videos
-                    await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}`")
+                    # Update progress message for videos with a unique identifier
+                    await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
+                    counter += 1  # Increment the counter for the next message
+
             # Scraping notes
             for note in cdata['notes']:
                 note_name = note['name']
