@@ -84,28 +84,32 @@ async def account_login(bot: Client, message: Message):
             # Dumping JSON data to a file
             with open(f"{batch_name}.json", "w") as json_file:
                 json.dump(cdata, json_file)
-
+    
             editable2 = await message.reply_text("📥**Please wait patiently.** 🧲    `Scraping Url...`")
             counter = 1  # Initialize a counter
-
-        with open(f"{batch_name}.txt", "w") as f:
-            for topic in cdata.get('topics', []):  # Iterate through each item in the 'topics' list
-                sub_topics = topic.get('sub_topics', [])  # Retrieve the 'sub_topics' list for each topic
-                for video in sub_topics:  # Iterate through each video in the 'sub_topics' list
-                    if isinstance(video, dict):  # Check if video is a dictionary
-                        video_name = video.get('name', 'Unnamed Video')
-                        video_url = video.get('class_video_recording_play', {}).get('url')
-                        if video_url:
-                            f.write(f"{video_name}: {video_url}\n")
-                            await editable2.edit(f"🧲**Scraping videos Url**: `{video_name}` ({counter})")
+    
+            with open(f"{batch_name}.txt", "w") as f:
+                topics = cdata.get('topics', [])
+                for topic in topics:  # Iterate through each topic in the 'topics' list
+                    sub_topics = topic.get('sub_topics', [])
+                    for sub_topic in sub_topics:  # Iterate through each sub-topic in the 'sub_topics' list
+                        if isinstance(sub_topic, dict):  # Check if sub_topic is a dictionary
+                            video_name = sub_topic.get('name', 'Unnamed Video')
+                            video_url = sub_topic.get('class_video_recording_play', {}).get('url')
+                            if video_url:
+                                f.write(f"{video_name}: {video_url}\n")
+                                await editable2.edit(f"🧲**Scraping videos Url**: `{video_name}` ({counter})")
+                                counter += 1
+                        else:
+                            print("Unexpected data type for sub_topic:", type(sub_topic))
                             counter += 1
-                    else:
-                        print("Unexpected data type for video:", type(video))
-                        counter += 1
             await editable2.edit("Scraping completed successfully!")
             await editable2.delete()
+        else:
+            await message.reply_text("Failed to fetch batch topics. Please try again.")
     else:
-        await message.reply_text("Failed to fetch batch topics. Please try again.")
+        await message.reply_text("Invalid Batch ID.")
+
         # Sending the JSON document
         try:
             await message.reply_document(
@@ -124,8 +128,6 @@ async def account_login(bot: Client, message: Message):
         except Exception as e:
             print("Error sending text document:", e)
 
-    else:
-        await message.reply_text("Invalid Batch ID.")
 
 
 
