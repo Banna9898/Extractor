@@ -64,22 +64,21 @@ async def account_login(bot: Client, m: Message):
 
     try:
         if "*" in raw_text:
-           em = raw_text.split("*")[0]
-           ps = raw_text.split("*")[1]
-           data = {
-           'email': em,
-           'password': ps,
-           }
-
-           r = requests.post('https://elearn.crwilladmin.com/api/v3/login-other', headers=headersa, data=data).json()
-           #print(r)
-           token = r['data']['token']
-           print('Token :- '+token)
-           await editable.edit(f"**Login Successful**")
-            await m.reply_text(f"**Token :** `{token}`")          
+            em = raw_text.split("*")[0]
+            ps = raw_text.split("*")[1]
+            data = {
+            'email': em,
+            'password': ps,
+            }
+            r = requests.post('https://elearn.crwilladmin.com/api/v3/login-other', headers=headersa, data=data).json()
+            #print(r)
+            token = r['data']['token']
+            #print('Token :- '+token)
+            await editable.edit(f"**Login Successful**")
+            await m.reply_text(f"**Token :** `{token}`")        
         else:
            token = raw_text
-           print('Token :- '+token)
+           #print('Token :- '+token)
            await editable.edit("**Login Successful**")
     except Exception as e:
       await m.reply_text(e)
