@@ -58,7 +58,7 @@ async def account_login(bot: Client, message: Message):
     if not keydata:  # Check if there are no batches available
         await editable.edit("You don't have any batches available.")
         return
-
+    cool = ""
     for data in keydata.values():  # Iterate over the values of keydata
         if isinstance(data, dict):  # Check if data is a dictionary
             batch_id = data.get("batch_id")
@@ -72,7 +72,7 @@ async def account_login(bot: Client, message: Message):
         else:
             print("Unexpected data type:", type(data))
     # Access batch details
-    cool = ""
+    
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await m.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
