@@ -56,16 +56,25 @@ async def account_login(bot: Client, message: Message):
         # User ID is invalid
         await message.reply_text("Invalid user ID. Please try again.")
     bdata = json.loads(url.text)
-    first_item = bdata["items"][0]  # Access the first item in the list
+    #first_item = bdata["items"][0]  # Access the first item in the list
     batch_data = bdata["items"][0]["batch"]
     # Extract batch details
     batch_id = batch_data.get("batch_id")
     batch_name = batch_data.get("name")
     batch_fee = batch_data.get("fee")
-    print("keydata:", batch_data)
+    webinar_link = batch_data.get("webinar_link")
+    webinar_id = batch_data.get("webinar_id")
+    webinar_passcode = batch_data.get("webinar_passcode")
+
+    await message.reply_text(f"**You can watch live without needing a subscription for the batch:**\n"
+                            f"✅ **Link:** {webinar_link}\n"
+                            f"✅ **Webinar ID:** `{webinar_id}`\n"
+                            f"✅ **Passcode:** `{webinar_passcode}`")
+
+    #print("keydata:", batch_data)
     cool = ""
     FFF = "**BATCH-ID  -  BATCH NAME**"
-    aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
+    aa = f"`{batch_id}` - **{batch_name}**  ❇️**{batch_fee}₹**\n\n"
     if len(f'{cool}{aa}') > 4096:
         cool = ""
     cool += aa
@@ -91,6 +100,7 @@ async def account_login(bot: Client, message: Message):
             with open(f"{batch_name}.txt", "w") as f:
                 topics = cdata.get('topics', [])
                 for topic in topics:  # Iterate through each topic in the 'topics' list
+                    t_name = topic.get('name', 'Unnamed Topic')  # Get the name of the topic
                     sub_topics = topic.get('sub_topics', [])
                     for sub_topic in sub_topics:  # Iterate through each sub-topic in the 'sub_topics' list
                         if isinstance(sub_topic, dict):  # Check if sub_topic is a dictionary
@@ -98,11 +108,11 @@ async def account_login(bot: Client, message: Message):
                             video_url = sub_topic.get('class_video_recording_play', {}).get('url')
                             if video_url:
                                 f.write(f"{video_name}: {video_url}\n")
-                                await editable2.edit(f"🧲**Scraping videos Url**: `{video_name}` ({counter})")
-                                counter += 1
+                                await editable2.edit(f"🧲**Scraping videos Url**: `{t_name}` ({counter})")
+                                counter += 50
                         else:
                             print("Unexpected data type for sub_topic:", type(sub_topic))
-                            counter += 1
+                            counter += 50
             await editable2.edit("Scraping completed successfully!")
             await editable2.delete()
 
@@ -123,11 +133,6 @@ async def account_login(bot: Client, message: Message):
             )
         except Exception as e:
             print("Error sending text document:", e)
-        else:
-            await message.reply_text("Failed to fetch batch topics. Please try again.")
+
     else:
         await message.reply_text("Invalid Batch ID.")
-
-
-
-
