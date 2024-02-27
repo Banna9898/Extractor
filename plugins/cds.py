@@ -70,15 +70,16 @@ async def account_login(bot: Client, message: Message):
             batch_id = data_value.get("batch_id")
             batch_name = data_value.get("name")
             batch_fee = data_value.get("fee")
-            if batch_id and batch_name and batch_fee:  # Ensure all required fields are present
+            if batch_id and batch_name and isinstance(batch_fee, (int, float)):  # Ensure all required fields are present
                 aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
                 if len(f'{cool}{aa}') > 4096:
                     cool = ""
                 cool += aa
             else:
-                print("Missing required fields in batch data.")
+                print("Missing required fields in batch data or incorrect data types.")
         else:
             print(f"Unexpected data type for key '{data_key}': {type(data_value)}")
+
 
     # Access batch details
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
