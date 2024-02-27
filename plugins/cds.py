@@ -59,14 +59,17 @@ async def account_login(bot: Client, message: Message):
     if not keydata:  # Check if there are no batches available
         await editable.edit("You don't have any batches available.")
         return
+    # Access batch details
     cool = ""
     for data in keydata.values():  # Iterate over the values of keydata
+        batch_id = data["batch_id"]
+        batch_name = data["name"]
+        batch_fee = data["fee"]
         FFF = "**BATCH-ID  -  BATCH NAME**"
-        aa = f"`{data['batch_id']}` - **{data['name']}** ❇️**{data['fee']}₹**\n\n"
+        aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
         if len(f'{cool}{aa}') > 4096:
             cool = ""
         cool += aa  
-
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await m.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
@@ -80,12 +83,12 @@ async def account_login(bot: Client, message: Message):
         cdata = json.loads(url2.text)
         tname = cdata["topics"]
         # Dumping JSON data to a file
-        with open(f"{bname}.json", "w") as json_file:
+        with open(f"{batch_name}.json", "w") as json_file:
             json.dump(cdata, json_file)
         editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
         counter = 1  # Initialize a counter
         
-        with open(f"{bname}.txt", "w") as f:
+        with open(f"{batch_name}.txt", "w") as f:
             # Scraping videos
             for video in tname['sub_topics']:
                 video_name = video['name']
@@ -100,8 +103,8 @@ async def account_login(bot: Client, message: Message):
         # Sending the JSON document
         try:
             await m.reply_document(
-                document=f"{bname}.json",
-                caption=f"✅** JSON FILE **✅\n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
+                document=f"{batch_name}.json",
+                caption=f"✅** JSON FILE **✅\n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{batch_name}`"
             )
         except Exception as e:
             print("Error sending JSON document:", e)
@@ -109,8 +112,8 @@ async def account_login(bot: Client, message: Message):
         # Sending the text document
         try:
             await m.reply_document(
-                document=f"{bname}.txt",
-                caption=f"✅** TEXT FILE **✅\n📍**APP Name**: CDS Journey\n🔰**Batch Name**: `{bname}`"
+                document=f"{batch_name}.txt",
+                caption=f"✅** TEXT FILE **✅\n📍**APP Name**: CDS Journey\n🔰**Batch Name**: `{batch_name}`"
             )
         except Exception as e:
             print("Error sending text document:", e)
