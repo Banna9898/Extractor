@@ -23,6 +23,8 @@ import time
 from typing import List, Dict
 from typing import Any, Dict
 
+# Your import statements here
+
 @bot.on_message(filters.command("cds"))
 async def account_login(bot: Client, message: Message):
     editable = await message.reply_text("Please send your **USER ID** inside your Profile")
@@ -46,76 +48,85 @@ async def account_login(bot: Client, message: Message):
         'accept-encoding': 'gzip, deflate, br',
         'accept-language': 'en-US,en;q=0.9'
     }
-    
-    try:
-        url = requests.get("https://api.cdsjourney.com/subscribed?is_valid=1", headers=headers)
-        url.raise_for_status()  # Raise an exception for non-200 status codes
-        bdata = url.json()
-    except requests.RequestException as e:
-        await message.reply_text(f"Error accessing the API: {e}")
-        return
-    
-    if bdata.get("items"):
-        first_batch = bdata["items"][0].get("batch", {})
-        batch_id = first_batch.get("batch_id")
-        batch_name = first_batch.get("name")
-        batch_fee = first_batch.get("fee")
-        
-        cool = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
-        await editable.edit(f'{"**You have these batches :-**"}\n\n**BATCH-ID  -  BATCH NAME**\n\n{cool}')
-        
-        editable1 = await message.reply_text("**Now send the Batch ID to Download**")
-        input2 = await bot.listen(editable.chat.id)
-        raw_text2 = input2.text
-        await input2.delete(True)
-        await editable.delete()
-        await editable1.delete()
-        
-        batch_id_input = raw_text2
-        if batch_id_input:
-            try:
-                url2 = requests.get(f'https://api.cdsjourney.com/batches/{batch_id_input}/topics', headers=headers)
-                url2.raise_for_status()
-                cdata = url2.json()
-                
-                with open(f"{batch_name}.json", "w") as json_file:
-                    json.dump(cdata, json_file)
-                
-                editable2 = await message.reply_text("📥**Please wait patiently.** 🧲    `Scraping Url...`")
-                counter = 1
-                
-                with open(f"{batch_name}.txt", "w") as f:
-                    for video in cdata.get('topics', []):
-                        if isinstance(video, dict):
-                            video_name = video.get('name', 'Unnamed Video')
-                            video_url = video.get('class_video_recording_play', {}).get('url')
-                            if video_url:
-                                f.write(f"{video_name}: {video_url}\n")
-                                await editable2.edit(f"🧲**Scraping videos Url**: `{video_name}` ({counter})")
-                                counter += 1
-                        else:
-                            print("Unexpected data type for video:", type(video))
-                            counter += 1
-                await editable2.edit("Scraping completed successfully!")
-                await editable2.delete()
-                
-                # Sending the JSON document
-                await message.reply_document(
-                    document=f"{batch_name}.json",
-                    caption=f"✅** JSON FILE **✅\n📍**APP Name**: Cds Journey\n🔰**Batch Name**: `{batch_name}`"
-                )
-
-                # Sending the text document
-                await message.reply_document(
-                    document=f"{batch_name}.txt",
-                    caption=f"✅** TEXT FILE **✅\n📍**APP Name**: CDS Journey\n🔰**Batch Name**: `{batch_name}`"
-                )
-
-            except requests.RequestException as e:
-                await message.reply_text(f"Error accessing batch topics: {e}")
-        else:
-            await message.reply_text("Invalid Batch ID.")
+    url = requests.get("https://api.cdsjourney.com/subscribed?is_valid=1", headers=headers)
+    if url.status_code == 200:
+        # User ID is valid
+        await message.reply_text("Login successful!")
     else:
-        await message.reply_text("No subscribed batches found.")
+        # User ID is invalid
+        await message.reply_text("Invalid user ID. Please try again.")
+    bdata = json.loads(url.text)
+    first_item = bdata["items"][0]  # Access the first item in the list
+    batch_data = bdata["items"][0]["batch"]
+    # Extract batch details
+    batch_id = batch_data.get("batch_id")
+    batch_name = batch_data.get("name")
+    batch_fee = batch_data.get("fee")
+    print("keydata:", batch_data)
+    cool = ""
+    FFF = "**BATCH-ID  -  BATCH NAME**"
+    aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
+    if len(f'{cool}{aa}') > 4096:
+        cool = ""
+    cool += aa
+    await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
+    editable1 = await message.reply_text("**Now send the Batch ID to Download**")
+    input2 = await bot.listen(editable.chat.id)
+    raw_text2 = input2.text
+    await input2.delete(True)
+    await editable.delete()
+    await editable1.delete()
+    batchid = raw_text2
+    if batchid:
+        url2 = requests.get(f'https://api.cdsjourney.com/batches/{batchid}/topics', headers=headers)
+        if url2.status_code == 200:
+            cdata = url2.json()  # Parse JSON response
+            # Dumping JSON data to a file
+            with open(f"{batch_name}.json", "w") as json_file:
+                json.dump(cdata, json_file)
+
+            editable2 = await message.reply_text("📥**Please wait patiently.** 🧲    `Scraping Url...`")
+            counter = 1  # Initialize a counter
+
+        with open(f"{batch_name}.txt", "w") as f:
+            for topic in cdata.get('topics', []):  # Iterate through each item in the 'topics' list
+                sub_topics = topic.get('sub_topics', [])  # Retrieve the 'sub_topics' list for each topic
+                for video in sub_topics:  # Iterate through each video in the 'sub_topics' list
+                    if isinstance(video, dict):  # Check if video is a dictionary
+                        video_name = video.get('name', 'Unnamed Video')
+                        video_url = video.get('class_video_recording_play', {}).get('url')
+                        if video_url:
+                            f.write(f"{video_name}: {video_url}\n")
+                            await editable2.edit(f"🧲**Scraping videos Url**: `{video_name}` ({counter})")
+                            counter += 1
+                    else:
+                        print("Unexpected data type for video:", type(video))
+                        counter += 1
+            await editable2.edit("Scraping completed successfully!")
+            await editable2.delete()
+        else:
+            await message.reply_text("Failed to fetch batch topics. Please try again.")
+        # Sending the JSON document
+        try:
+            await message.reply_document(
+                document=f"{batch_name}.json",
+                caption=f"✅** JSON FILE **✅\n📍**APP Name**: Cds Journey\n🔰**Batch Name**: `{batch_name}`"
+            )
+        except Exception as e:
+            print("Error sending JSON document:", e)
+
+        # Sending the text document
+        try:
+            await message.reply_document(
+                document=f"{batch_name}.txt",
+                caption=f"✅** TEXT FILE **✅\n📍**APP Name**: CDS Journey\n🔰**Batch Name**: `{batch_name}`"
+            )
+        except Exception as e:
+            print("Error sending text document:", e)
+
+    else:
+        await message.reply_text("Invalid Batch ID.")
+
+
 
 
