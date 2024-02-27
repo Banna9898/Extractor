@@ -1,25 +1,26 @@
-from pyrogram.errors.exceptions.bad_request_400 import StickerEmojiInvalid
 import requests
 import json
-import subprocess #GetVideoInfo.py
+import subprocess
+from pyrogram.types.messages_and_media import message
+import helper
+from pyromod import listen
+from pyrogram.types import Message
+import tgcrypto
+import pyrogram
 from pyrogram import Client, filters
 from pyrogram.types.messages_and_media import message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import FloodWait
-from pyromod import listen
-from pyrogram.types import Message
-from subprocess import getstatusoutput
-from aiohttp import ClientSession
-import helper #helper.py
-from logger import logging #logger.py
 import time
-import asyncio
 from pyrogram.types import User, Message
+from subprocess import getstatusoutput
+import logging
+import os
 import sys
 import re
-import os
-
-
+from pyrogram import Client as bot
+import time
+from typing import List, Dict
 
 
 @bot.on_message(filters.command(["master"]))
