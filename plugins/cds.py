@@ -56,17 +56,17 @@ async def account_login(bot: Client, message: Message):
     bdata = json.loads(url.text)
     first_item = bdata["items"][0]  # Access the first item in the list
     keydata = first_item["batch"]
-    bname = keydata['name']
     if not keydata:  # Check if there are no batches available
         await editable.edit("You don't have any batches available.")
         return
     cool = ""
-    for data in keydata:
+    for data in keydata.values():  # Iterate over the values of keydata
         FFF = "**BATCH-ID  -  BATCH NAME**"
         aa = f"`{data['batch_id']}` - **{data['name']}** ❇️**{data['fee']}₹**\n\n"
         if len(f'{cool}{aa}') > 4096:
             cool = ""
         cool += aa  
+
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await m.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
