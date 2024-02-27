@@ -53,12 +53,10 @@ async def account_login(bot: Client, message: Message):
     else:
         # User ID is invalid
         await message.reply_text("Invalid user ID. Please try again.")
-
     bdata = json.loads(url.text)
-    keydata = bdata["items"]["batch"]
+    first_item = bdata["items"][0]  # Access the first item in the list
+    keydata = first_item["batch"]
     bname = keydata['name']
-    await editable.edit("**Login Successful**")
-
     if not keydata:  # Check if there are no batches available
         await editable.edit("You don't have any batches available.")
         return
@@ -69,7 +67,6 @@ async def account_login(bot: Client, message: Message):
         if len(f'{cool}{aa}') > 4096:
             cool = ""
         cool += aa  
-
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await m.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
