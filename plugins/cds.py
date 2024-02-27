@@ -46,7 +46,7 @@ async def account_login(bot: Client, message: Message):
         'accept-encoding':'gzip, deflate, br',
         'accept-language':'en-US,en;q=0.9'
     }
-    url = requests.request("https://api.cdsjourney.com/subscribed?is_valid=1", headers=headers)    
+    url = requests.get("https://api.cdsjourney.com/subscribed?is_valid=1", headers=headers)    
     if url.status_code == 200:
         # User ID is valid
         await message.reply_text("Login successful!")
@@ -79,7 +79,7 @@ async def account_login(bot: Client, message: Message):
     await editable1.delete()
     batchid = raw_text2
     if batchid:
-        url2 = requests.request(f'https://api.cdsjourney.com/batches/{batchid}/topics', headers=headers)
+        url2 = requests.get(f'https://api.cdsjourney.com/batches/{batchid}/topics', headers=headers)
         cdata = json.loads(url2.text)
         tname = cdata["topics"]
         # Dumping JSON data to a file
