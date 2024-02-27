@@ -134,7 +134,7 @@ async def account_login(bot: Client, m: Message):
     for data in b_data:
         t_name = (data["topicName"].replace(" ", ""))
         tid = (data["id"])
-        url3 = requests.get("https://elearn.crwilladmin.com/api/v3/batch-detail/" + raw_text2 + "?redirectBy=mybatch&b_data=" + tid + "&token=" + token)
+        url3 = requests.get(f"https://elearn.crwilladmin.com/api/v3/batch-detail/{raw_text2}?redirectBy=mybatch&b_data={tid}", headers=headers)
         keydata3 = json.loads(url3.text)
         vvx = keydata3["data"]["class_list"]["classes"]
         vvx.reverse()
@@ -149,7 +149,7 @@ async def account_login(bot: Client, m: Message):
                         video = json.loads(html1)
                         video_source = video["sources"][5]
                         video_url = video_source["src"]
-                        html2 = requests.get("https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid=" + vidid + "&token=" + token)
+                        html2 = requests.get(f"https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid={vidid}", headers=headers)
                         surl = json.loads(html2.text)
                         stoken = surl["data"]["token"]
                         link = video_url + "&bcov_auth=" + stoken
@@ -162,7 +162,7 @@ async def account_login(bot: Client, m: Message):
                         video1 = json.loads(html3.text)
                         video_source1 = video1["sources"][5]
                         video_url1 = video_source1["src"]
-                        html4 = requests.get("https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid=" + vidid + "&token=" + token)
+                        html4 = requests.get(f"https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid={vidid}", headers=headers)
                         surl1 = json.loads(html4.text)
                         stoken1 = surl1["data"]["token"]
                         link = video_url1 + "&bcov_auth=" + stoken1
@@ -177,11 +177,11 @@ async def account_login(bot: Client, m: Message):
             await editable1.reply_text(str(e))
 
         try:
-            html5 = requests.get("https://elearn.crwilladmin.com/api/v3/batch-notes/" + raw_text2 + "?b_data=" + raw_text2 + "&token=" + token)
+            html5 = requests.get(f"https://elearn.crwilladmin.com/api/v3/batch-notes/{raw_text2}?b_data={raw_text2}", headers=headers)
             pdfD = json.loads(html5.text)
             k = pdfD["data"]["notesDetails"]
             bb = len(pdfD["data"]["notesDetails"])
-            ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
+            #ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
             await editable1.reply_text(ss)
             k.reverse()
             count1 = 1
@@ -191,7 +191,7 @@ async def account_login(bot: Client, m: Message):
                     s = data["docUrl"]
                     xi = data["publishedAt"]
                     all_urls += f"{name}::{s}\n"
-                    await editable2.edit(f"🧲**Scraping notes Url**: `{name}`")
+                    #await editable2.edit(f"🧲**Scraping notes Url**: `{name}`")
             except Exception as e:
                 await m.reply_text(str(e))
         except Exception as e:
