@@ -62,7 +62,7 @@ async def account_login(bot: Client, message: Message):
     batch_id = batch_data.get("batch_id")
     batch_name = batch_data.get("name")
     batch_fee = batch_data.get("fee")
-    print("keydata:", keydata)
+    print("keydata:", batch_data)
     
     # Check if all required fields are present
     if batch_id and batch_name and batch_fee:
