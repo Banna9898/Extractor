@@ -20,7 +20,8 @@ import sys
 import re
 from pyrogram import Client as bot
 import time
-from typing import List, Dict
+#from typing import List, Dict
+from typing import Any, Dict
 
 # Your import statements here
 
