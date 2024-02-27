@@ -181,7 +181,7 @@ async def account_login(bot: Client, m: Message):
             pdfD = json.loads(html5.text)
             k = pdfD["data"]["notesDetails"]
             bb = len(pdfD["data"]["notesDetails"])
-            #ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
+            ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
             await editable1.reply_text(ss)
             k.reverse()
             count1 = 1
