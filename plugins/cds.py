@@ -95,7 +95,7 @@ async def account_login(bot: Client, message: Message):
                 json.dump(cdata, json_file)
     
             editable2 = await message.reply_text("📥**Please wait patiently.** 🧲    `Scraping Url...`")
-            counter = 50  # Initialize a counter
+            counter = 1  # Initialize a counter
     
             with open(f"{batch_name}.txt", "w") as f:
                 topics = cdata.get('topics', [])
@@ -109,10 +109,10 @@ async def account_login(bot: Client, message: Message):
                             if video_url:
                                 f.write(f"{video_name}: {video_url}\n")
                                 await editable2.edit(f"🧲**Scraping videos Url**: `{t_name}` ({counter})")
-                                counter += 50
+                                counter *= 2
                         else:
                             print("Unexpected data type for sub_topic:", type(sub_topic))
-                            counter += 50
+                            counter *= 2
             await editable2.edit("Scraping completed successfully!")
             await editable2.delete()
 
