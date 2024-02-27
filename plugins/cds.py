@@ -63,40 +63,13 @@ async def account_login(bot: Client, message: Message):
     batch_name = batch_data.get("name")
     batch_fee = batch_data.get("fee")
     print("keydata:", batch_data)
-    
-    # Check if all required fields are present
-    if batch_id and batch_name and batch_fee:
-        print("Batch ID:", batch_id)
-        print("Batch Name:", batch_name)
-        print("Batch Fee:", batch_fee)
-    else:
-        print("Missing required fields in batch data.")
-    # Ensure keydata is a dictionary before proceeding
-    # if not isinstance(keydata, dict):
-    #     await editable.edit("Batch data is not available.")
-    #     return
-
-    # cool = ""
-    # FFF = "**BATCH-ID  -  BATCH NAME**"
-    # for data_key, data_value in keydata.items():  # Iterate over the key-value pairs of keydata
-    #     if isinstance(data_value, dict):  # Check if data_value is a dictionary
-    #         batch_id = data_value.get("batch_id")
-    #         batch_name = data_value.get("name")
-    #         batch_fee = data_value.get("fee")
-    #         if batch_id and batch_name and isinstance(batch_fee, (int, float)):  # Ensure all required fields are present
-    #             aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
-    #             if len(f'{cool}{aa}') > 4096:
-    #                 cool = ""
-    #             cool += aa
-    #         else:
-    #             print("Missing required fields in batch data or incorrect data types.")
-    #     else:
-    #         print(f"Unexpected data type for key '{data_key}': {type(data_value)}")
-
-
-    # Access batch details
-    #await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
-
+    cool = ""
+    FFF = "**BATCH-ID  -  BATCH NAME**"
+    aa = f"`{batch_id}` - **{batch_name}** ❇️**{batch_fee}₹**\n\n"
+    if len(f'{cool}{aa}') > 4096:
+        cool = ""
+    cool += aa
+    await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await message.reply_text("**Now send the Batch ID to Download**")
     input2 = await bot.listen(editable.chat.id)
     raw_text2 = input2.text
@@ -131,7 +104,7 @@ async def account_login(bot: Client, message: Message):
         try:
             await message.reply_document(
                 document=f"{batch_name}.json",
-                caption=f"✅** JSON FILE **✅\n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{batch_name}`"
+                caption=f"✅** JSON FILE **✅\n📍**APP Name**: Cds Journey\n🔰**Batch Name**: `{batch_name}`"
             )
         except Exception as e:
             print("Error sending JSON document:", e)
@@ -146,3 +119,4 @@ async def account_login(bot: Client, message: Message):
             print("Error sending text document:", e)
     else:
         await message.reply_text("Invalid Batch ID.")
+
