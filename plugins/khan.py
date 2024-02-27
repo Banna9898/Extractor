@@ -93,7 +93,7 @@ async def account_login(bot: Client, m: Message):
         bname = next((item["title"] for item in bdata if item.get("slug") == slugdata), None)
         url2 = s.get(f'https://admin2.khanglobalstudies.com/api/user/courses/{slugdata}/lessons?medium=0', headers=headers1)
         cdata = json.loads(url2.text)
-        cdata['lessons'].reverse()  # Reverse the data if needed
+        #cdata['lessons'].reverse()  # Reverse the data if needed
         with open(f"{bname}.json", "w") as json_file:
             # Write each key-value pair to the file with a newline character
             for key, value in cdata.items():
@@ -112,7 +112,7 @@ async def account_login(bot: Client, m: Message):
                     f.write(f"{video_name}: {video_url}\n")
                     # Update progress message for videos with a unique identifier
                     await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
-                    counter += 1  # Increment the counter for the next message
+                    #counter += 1  # Increment the counter for the next message
 
         # Scraping notes
             for note in cdata['notes']:
