@@ -66,7 +66,7 @@ async def account_login(bot: Client, message: Message):
     webinar_id = batch_data.get("webinar_id")
     webinar_passcode = batch_data.get("webinar_passcode")
 
-    await message.reply_text(f"**You can watch live without needing a subscription for the batch:**\n"
+    await message.reply_text(f"**You can watch live without needing a subscription for the batch:**\n\n"
                             f"✅ **Link:** {webinar_link}\n"
                             f"✅ **Webinar ID:** `{webinar_id}`\n"
                             f"✅ **Passcode:** `{webinar_passcode}`")
@@ -95,7 +95,7 @@ async def account_login(bot: Client, message: Message):
                 json.dump(cdata, json_file)
     
             editable2 = await message.reply_text("📥**Please wait patiently.** 🧲    `Scraping Url...`")
-            counter = 1  # Initialize a counter
+            #counter = 1  # Initialize a counter
     
             with open(f"{batch_name}.txt", "w") as f:
                 topics = cdata.get('topics', [])
@@ -108,8 +108,8 @@ async def account_login(bot: Client, message: Message):
                             video_url = sub_topic.get('class_video_recording_play', {}).get('url')
                             if video_url:
                                 f.write(f"{video_name}: {video_url}\n")
-                                await editable2.edit(f"🧲**Scraping videos Url**: `{t_name}` ({counter})")
-                                counter *= 2
+                                await editable2.edit(f"🧲**Scraping videos Url**: `{t_name}`")
+                                #counter *= 2
                         else:
                             print("Unexpected data type for sub_topic:", type(sub_topic))
                             counter *= 2
