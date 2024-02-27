@@ -102,22 +102,23 @@ async def account_login(bot: Client, m: Message):
         # Initialize a counter for the progress messages
         counter = 1  
 
-        # Scraping videos
-        for lesson in cdata['lessons']:
-            lesson_name = lesson['name']
-            for video in lesson['videos']:
-                video_name = video['name']
-                video_url = video['video_url']
-                caption += f"{lesson_name} | {video_name}: {video_url}\n"
-                # Update progress message for videos with a unique identifier
-                await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
-                counter += 1  # Increment the counter for the next message
+        with open(f"{bname}.txt", "w") as f:
+            # Scraping videos
+            for lesson in cdata['lessons']:
+                lesson_name = lesson['name']
+                for video in lesson['videos']:
+                    video_name = video['name']
+                    video_url = video['video_url']
+                    f.write(f"{video_name}: {video_url}\n")
+                    # Update progress message for videos with a unique identifier
+                    await editable2.edit(f"🧲**Scraping videos Url**: `{lesson_name}` ({counter})")
+                    counter += 1  # Increment the counter for the next message
 
         # Scraping notes
-        for note in cdata['notes']:
-            note_name = note['name']
-            note_url = note['video_url']
-            caption += f"Notes | {note_name}: {note_url}\n"
+            for note in cdata['notes']:
+                note_name = note['name']
+                note_url = note['video_url']
+                f.write(f"{note_name}: {note_url}\n")
             # Update progress message for notes
             #await editable2.edit(f"🧲**Scraping notes Url**: `{note_name}`")
 
