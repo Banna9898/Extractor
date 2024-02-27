@@ -12,7 +12,6 @@ from pyrogram.types.messages_and_media import message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import FloodWait
 import time
-from jinja2 import Template
 from pyrogram.types import User, Message
 from p_bar import progress_bar
 from subprocess import getstatusoutput
@@ -94,23 +93,13 @@ async def account_login(bot: Client, m: Message):
         bname = next((item["title"] for item in bdata if item.get("slug") == slugdata), None)
         url2 = s.get(f'https://admin2.khanglobalstudies.com/api/user/courses/{slugdata}/lessons?medium=0', headers=headers1)
         cdata = json.loads(url2.text)
-        #print("Url Data:", cdata)
-
-        # Read the contents of the template file
-        with open("template.html", "r") as template_file:
-            template_str = template_file.read()
-
-        # Now you can use template_str to render your template
-        template = Template(template_str)
-        rendered_html = template.render(batch=bname, lessons=cdata["lessons"])
-
-        # Dumping JSON data to a file
+        cdata.reverse()
         with open(f"{bname}.json", "w") as json_file:
             json.dump(cdata, json_file)
         editable2 = await m.reply_text("📥**Please wait keep patientce.** 🧲    `Scraping Url...`")
-        # Writing lesson and notes data to a text file
-        counter = 1  # Initialize a counter
         
+
+        counter = 1  # Initialize a counter        
         with open(f"{bname}.txt", "w") as f:
             # Scraping videos
             for lesson in cdata['lessons']:
@@ -151,7 +140,7 @@ async def account_login(bot: Client, m: Message):
         try:
             await m.reply_document(
                 document=f"{bname}.json",
-                caption=f"📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
+                caption=f"✅** JSON FILE **✅\n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
             )
         except Exception as e:
             print("Error sending JSON document:", e)
@@ -160,7 +149,7 @@ async def account_login(bot: Client, m: Message):
         try:
             await m.reply_document(
                 document=f"{bname}.txt",
-                caption=f"📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
+                caption=f"✅** TEXT FILE **✅ \n📍**APP Name**: KHAN Global Studies\n🔰**Batch Name**: `{bname}`"
             )
         except Exception as e:
             print("Error sending text document:", e)
