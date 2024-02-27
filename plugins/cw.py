@@ -131,76 +131,63 @@ async def account_login(bot: Client, m: Message):
     filename = keydata2["data"]["batch_detail"]["name"]
 
     all_urls = ""
+    scraped_notes_urls = set()  # To store unique notes URLs
+
     for data in b_data:
-        t_name = (data["topicName"].replace(" ", ""))
-        tid = (data["id"])
+        t_name = data["topicName"].replace(" ", "")
+        tid = data["id"]
         url3 = requests.get(f"https://elearn.crwilladmin.com/api/v3/batch-detail/{raw_text2}?redirectBy=mybatch&b_data={tid}", headers=headers)
         keydata3 = json.loads(url3.text)
         vvx = keydata3["data"]["class_list"]["classes"]
         vvx.reverse()
+
         try:
             for data in vvx:
                 vidid = data["id"]
                 lessonName = data["lessonName"].replace("/", "_")
                 bcvid = data["lessonUrl"][0]["link"]
+
                 if bcvid.startswith("62"):
-                    try:
-                        html1 = requests.get(f"{bc_url}/{bcvid}", headers=bc_hdr)
-                        video = json.loads(html1)
-                        video_source = video["sources"][5]
-                        video_url = video_source["src"]
-                        html2 = requests.get(f"https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid={vidid}", headers=headers)
-                        surl = json.loads(html2.text)
-                        stoken = surl["data"]["token"]
-                        link = video_url + "&bcov_auth=" + stoken
-                        #await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
-                    except Exception as e:
-                        print(str(e))
+                    html2 = requests.get(f"https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid={vidid}", headers=headers)
+                    surl = json.loads(html2.text)
+                    stoken = surl["data"]["token"]
+                    link = f"{bc_url}/{bcvid}&bcov_auth={stoken}"
                 elif bcvid.startswith("63"):
-                    try:
-                        html3 = requests.get(f"{bc_url}/{bcvid}", headers=bc_hdr)
-                        video1 = json.loads(html3.text)
-                        video_source1 = video1["sources"][5]
-                        video_url1 = video_source1["src"]
-                        html4 = requests.get(f"https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid={vidid}", headers=headers)
-                        surl1 = json.loads(html4.text)
-                        stoken1 = surl1["data"]["token"]
-                        link = video_url1 + "&bcov_auth=" + stoken1
-                        #await editable2.edit(f"🧲**Scraping video Url**: `{lessonName}`")
-                    except Exception as e:
-                        print(str(e))
+                    html4 = requests.get(f"https://elearn.crwilladmin.com/api/v3/livestreamToken?type=brightcove&vid={vidid}", headers=headers)
+                    surl1 = json.loads(html4.text)
+                    stoken1 = surl1["data"]["token"]
+                    link = f"{bc_url}/{bcvid}&bcov_auth={stoken1}"
                 else:
-                    link = "https://www.youtube.com/embed/" + bcvid
+                    link = f"https://www.youtube.com/embed/{bcvid}"
                 cc = f"{lessonName}::{link}"
                 all_urls += f"{cc}\n"
+
         except Exception as e:
-            await editable1.reply_text(str(e))
+            print(str(e))
 
         try:
             html5 = requests.get(f"https://elearn.crwilladmin.com/api/v3/batch-notes/{raw_text2}?b_data={raw_text2}", headers=headers)
             pdfD = json.loads(html5.text)
             k = pdfD["data"]["notesDetails"]
             bb = len(pdfD["data"]["notesDetails"])
-            #ss = f"Total PDFs Found in Batch id **{raw_text2}** is - **{bb}** "
-            #await editable1.reply_text(ss)
-            k.reverse()
-            count1 = 1
-            try:
-                for data in k:
-                    name = data["docTitle"]
-                    s = data["docUrl"]
-                    xi = data["publishedAt"]
+            
+            for data in k:
+                name = data["docTitle"]
+                s = data["docUrl"]
+                if s not in scraped_notes_urls:  # Check if the note URL is not already scraped
                     all_urls += f"{name}::{s}\n"
-                    #await editable2.edit(f"🧲**Scraping notes Url**: `{name}`")
-            except Exception as e:
-                await m.reply_text(str(e))
+                    scraped_notes_urls.add(s)  # Add the note URL to the set of scraped URLs
+
         except Exception as e:
             print(str(e))
+
     await editable2.edit("Scraping completed successfully!")
     await editable2.delete()
+
     # Write all URLs into one document file
     with open(f"{filename}.txt", 'w') as f:
         f.write(all_urls)
+
 
     await m.reply_document(
         document=f"{filename}.txt",
