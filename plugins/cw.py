@@ -35,7 +35,7 @@ BCOV_POLICY = "BCpkADawqM1VmXspFMod94-pT7xDCvmBEYt8U7f0mRB6XnG5huPE7I9qjhDW0qpx3
 bc_url = f"https://edge.api.brightcove.com/playback/v1/accounts/{ACCOUNT_ID}/videos"
 bc_hdr = {"BCOV-POLICY": BCOV_POLICY}
 
-@bot.on_message(filters.command("master"))
+@bot.on_message(filters.command("cw"))
 async def account_login(bot: Client, m: Message):
     editable = await m.reply_text(
         "Send **ID & Password** in this manner otherwise bot will not respond.\n\nSend like this:-  **ID*Password**"
